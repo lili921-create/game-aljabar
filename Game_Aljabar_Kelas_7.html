@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Aljabar Kelas 7</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef4ff,#f8f5ff);color:#172033}
+.wrap{max-width:850px;margin:auto;padding:18px}.card{background:white;border-radius:24px;padding:25px;box-shadow:0 10px 30px #0002}
+h1{text-align:center;color:#4f46e5;font-size:44px}.sub{text-align:center;font-size:18px}
+input{width:100%;padding:14px;border:2px solid #ddd;border-radius:12px;font-size:18px;box-sizing:border-box;margin:15px 0}
+button{border:0;border-radius:12px;padding:14px 18px;font-size:17px;font-weight:bold;cursor:pointer}
+.start{width:100%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:white}
+.top{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.badge{background:#eef2ff;border-radius:20px;padding:9px 13px;font-weight:bold}
+.q{text-align:center;font-size:30px;font-weight:bold;margin:30px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ans{background:#eef2ff;border:2px solid #dbe3ff;min-height:65px}.correct{background:#dcfce7!important;border-color:#16a34a!important}.wrong{background:#fee2e2!important;border-color:#dc2626!important}
+.bar{height:12px;background:#e2e8f0;border-radius:20px;overflow:hidden}.fill{height:100%;background:#4f46e5;width:100%}
+.center{text-align:center}.feedback{text-align:center;font-size:20px;font-weight:bold;min-height:30px;margin:14px}
+.score{font-size:64px;font-weight:bold;color:#4f46e5}.hidden{display:none}
+@media(max-width:600px){.answers{grid-template-columns:1fr}h1{font-size:36px}.q{font-size:23px}}
+</style>
+</head>
+<body><div class="wrap">
+<section id="start" class="card">
+<div class="center" style="font-size:60px">🧮🎮</div>
+<h1>GAME ALJABAR</h1>
+<p class="sub">Matematika Kelas 7 • 20 Soal • 3 Level</p>
+<input id="player" placeholder="Nama siswa">
+<button class="start" onclick="start()">▶ MULAI BERMAIN</button>
+<p class="center">Game dapat dimainkan tanpa internet setelah file dibuka di browser.</p>
+</section>
+
+<section id="game" class="card hidden">
+<div class="top">
+<div class="badge">👤 <span id="nm"></span></div>
+<div class="badge">⭐ Skor: <span id="score">0</span></div>
+<div class="badge">❤️ Nyawa: <span id="lives">3</span></div>
+</div>
+<p class="center"><b id="level"></b></p>
+<p><b>Soal <span id="n">1</span>/20</b> <span style="float:right">⏱ <span id="time">15</span> detik</span></p>
+<div class="bar"><div id="fill" class="fill"></div></div>
+<div id="q" class="q"></div>
+<div id="answers" class="answers"></div>
+<div id="feedback" class="feedback"></div>
+</section>
+
+<section id="result" class="card center hidden">
+<div style="font-size:70px">🏆</div><h1>Permainan Selesai!</h1>
+<p id="resultName"></p><div id="final" class="score">0 poin</div>
+<p id="msg"></p><button class="start" onclick="location.reload()">🔄 MAIN LAGI</button>
+</section></div>
+
+<script>
+const data=[
+["Apa variabel pada 5x + 3?",["5","x","3","8"],1],
+["Koefisien x pada 7x + 2 adalah ...",["2","5","7","9"],2],
+["Konstanta pada 4a + 9 adalah ...",["4","a","9","13"],2],
+["Banyak suku pada 3x + 5 adalah ...",["1","2","3","5"],1],
+["3x + 2x = ...",["5","5x","6x","x"],1],
+["8a − 3a = ...",["5","5a","11a","a"],1],
+["4y + y = ...",["4y","5","5y","y"],2],
+["6p − 2p = ...",["4","4p","8p","p"],1],
+["Suku sejenis dengan 5x adalah ...",["3y","7","3x","xy"],2],
+["4a dan 7b merupakan suku sejenis?",["Ya","Tidak","Kadang-kadang","Selalu"],1],
+["Sederhanakan 2x + 3 + 4x.",["6x","6x + 3","4x + 5","6x − 3"],1],
+["Sederhanakan 7a + 2 − 3a.",["4a + 2","10a + 2","4a − 2","7a − 3"],0],
+["Sederhanakan 5x + 2x − x.",["6x","7x","8x","5x"],0],
+["Sederhanakan 9b − 4b + 2.",["5b","5b + 2","13b + 2","5b − 2"],1],
+["5 kotak, tiap kotak berisi x pensil. Bentuk aljabarnya ...",["5+x","x+5","5x","x/5"],2],
+["3 kotak berisi x buku dan 2 buku tambahan. Bentuknya ...",["3x+2","3+2x","x+6","5x"],0],
+["Banyak suku pada 2a + 3b adalah ...",["1","2","3","5"],1],
+["Pada 9m + 4, angka 9 disebut ...",["Variabel","Konstanta","Koefisien","Suku"],2],
+["Pada x + 8, koefisien x adalah ...",["0","1","8","x"],1],
+["3x + 2 + 2x + 5 = ...",["5x + 7","5x + 3","6x + 7","5x + 5"],0]
+];
+let i=0,score=0,lives=3,t=15,timer,locked=false;
+function start(){document.getElementById("nm").textContent=document.getElementById("player").value||"Siswa";document.getElementById("start").classList.add("hidden");document.getElementById("game").classList.remove("hidden");load()}
+function load(){
+locked=false;clearInterval(timer);let d=data[i];
+document.getElementById("n").textContent=i+1;document.getElementById("level").textContent=i<7?"Level 1 — Detektif Aljabar":i<14?"Level 2 — Penguji Suku":"Level 3 — Master Aljabar";
+document.getElementById("q").textContent=d[0];document.getElementById("feedback").textContent="";
+let box=document.getElementById("answers");box.innerHTML="";
+d[1].forEach((a,k)=>{let b=document.createElement("button");b.className="ans";b.textContent=a;b.onclick=()=>answer(k);box.appendChild(b)});
+t=15;tick();timer=setInterval(()=>{t--;tick();if(t<=0){clearInterval(timer);answer(-1)}},1000)
+}
+function tick(){document.getElementById("time").textContent=t;document.getElementById("fill").style.width=(t/15*100)+"%"}
+function answer(k){
+if(locked)return;locked=true;clearInterval(timer);let d=data[i],bs=document.querySelectorAll(".ans");bs.forEach(b=>b.disabled=true);
+if(k===d[2]){score+=10;document.getElementById("score").textContent=score;if(k>=0)bs[k].classList.add("correct");document.getElementById("feedback").textContent="✅ Benar! +10 poin"}
+else{lives--;document.getElementById("lives").textContent=lives;if(k>=0)bs[k].classList.add("wrong");bs[d[2]].classList.add("correct");document.getElementById("feedback").textContent=k<0?"⏰ Waktu habis!":"❌ Belum tepat!"}
+setTimeout(()=>{if(lives<=0||i===data.length-1){end()}else{i++;load()}},900)
+}
+function end(){
+clearInterval(timer);document.getElementById("game").classList.add("hidden");document.getElementById("result").classList.remove("hidden");
+document.getElementById("resultName").textContent=(document.getElementById("player").value||"Siswa")+", skor kamu:";
+document.getElementById("final").textContent=score+" poin";
+document.getElementById("msg").textContent=score>=170?"🌟 Luar biasa!":score>=120?"👏 Bagus! Terus latihan.":"💪 Semangat! Pelajari lagi materi aljabar dan coba kembali.";
+}
+</script></body></html>
